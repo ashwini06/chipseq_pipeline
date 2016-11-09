@@ -1,0 +1,11 @@
+phred_encod: --phred64-quals
+index_bowtie : "/pica/data/uppnex/igenomes/Mus_musculus/Ensembl/GRCm38/Sequence/BowtieIndex/genome"
+
+macs_g: mm
+homer_g: mm10
+
+control_samples:
+    - Markinput_s_3_sequence
+narrow_samples:
+    - MarkMash1_s4_sequence
+    
