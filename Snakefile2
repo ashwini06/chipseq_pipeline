@@ -1,0 +1,36 @@
+# vim: set ft=python:
+shell.prefix("set -euo pipefail;")
+
+configfile: "config.yaml"
+localrules: all
+
+all_samples = config["narrow_samples"] +  config["control_samples"]
+all_bam = expand("03aln/{sam}.sorted.bam 03aln/{sam}.sorted.bam.bai 03aln/{sam}.sorted.bam.flagstat".split(), sam = all_samples)
+
+
+
+rule all:
+	input : all_bam
+
+
+
+
+rule merge_controls:
+    input:   expand("03aln/{sam}.sorted.bam", sam = config["control_samples"])
+    output:  "03aln/control.sorted.bam"
+    log:     "00log/merge_controls"
+    threads: 2
+    params:
+        mem = "1G",
+
+    message: "merge_controls {input}"
+    shell:
+        """
+        inbam=( {input} )
+        if [[ ${{#inbam[@]}} -eq 1 ]]; then 
+            cp {input} {output}
+        else
+            module load bioinfo-tools samtools/1.3
+            samtools merge -r @{threads} {output} {input}
+        fi
+        """
