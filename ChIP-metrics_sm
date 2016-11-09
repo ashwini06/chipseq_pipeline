@@ -1,0 +1,67 @@
+# vim: set ft=python:
+shell.prefix("set -euo pipefail;")
+
+configfile: "config.yaml"
+localrules: all
+
+all_samples= config["narrow_samples"] +  config["control_samples"]
+all_bed = expand("001bed/{sam}.bed",sam=all_samples)
+all_metrics = expand("002metrics/{sam}_nrf_metrics.txt 002metrics/{sam}.spp.out 002metrics/{sam}.intersectbed 002metrics/{sam}_readcounts.txt".split(),sam=all_samples)
+rule all:
+       input: all_bed + all_metrics
+    
+
+rule bam2bed:
+    input:"03aln/{sam}.sorted.bam"
+    output: "001bed/{sam}.bed"
+    log : "001bed/{sam}_bam2bed.log"
+    message: "converting bamfiles to bed files: {input}"
+    shell:
+        """
+        module load bioinfo-tools BEDTools/2.11.2
+        bamToBed -i {input} > {output}
+        """
+rule nrf:
+    input: "001bed/{sam}.bed"
+    output: "002metrics/{sam}_nrf_metrics.txt"
+    log:"002metrics/nrf.log"
+    message: "Non-reduntant Ratio calculation: {input}"
+    shell:
+        """
+        perl ~/scripts/codes/chipseq_metrics/calbedNrf.pl {input} > {output}
+
+        """
+
+rule spp:
+    input: "03aln/{sam}.sorted.bam"
+    output: "002metrics/{sam}.spp.out"
+    log:"00log/{sam}_spp.log"
+    message: "calculate NSC/ RSC ratio for : {input}"
+    shell: 
+        """
+        module load bioinfo-tools samtools/1.3
+        Rscript /home/ashwini/scripts/codes/chipseq_metrics/phantompeakqualtools/run_spp.R -c={input} -savp={wildcards.sam} -out={output} 2> {log}
+        """
+
+rule frip :
+    input: "001bed/{sam}.bed", expand("04peak/{sam}_peaks.narrowPeak",sam=config["narrow_samples"])
+    output: "002metrics/{sam}.intersectbed"
+    log: "00log/{sam}_frip.log"
+    message: "calculate frip ratio for : {input}"
+    shell:
+        """
+        module load bioinfo-tools BEDTools/2.11.2
+        intersectBed -a {input[0]} -b {input[1]} -c -f 0.20 > {output}
+        """
+
+rule getcount:
+    input: "002metrics/{sam}.intersectbed"
+    output: "002metrics/{sam}_readcounts.txt"
+    log: "00log/{sam}_getcount.log"
+    message: "calculate sum up reads mapped to peaks from : {input}"
+    shell:
+        """
+        perl /home/ashwini/scripts/codes/chipseq_metrics/getcnt.pl {input} > {output}
+        """
+
+
