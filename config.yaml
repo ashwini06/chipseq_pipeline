@@ -1,11 +1,117 @@
-phred_encod: --phred64-quals
-index_bowtie : "/pica/data/uppnex/igenomes/Mus_musculus/Ensembl/GRCm38/Sequence/BowtieIndex/genome"
+## Timepoints
+day:
+    - D5.5
+    #- D3.5
 
-macs_g: mm
-homer_g: mm10
+# for D5.5, WT and FoxA2mut- series is 1,2 , for D3.5- WT series is 3,4 and Foxa2mut_D3.5 series is 1,2
 
-control_samples:
-    - Markinput_s_3_sequence
-narrow_samples:
-    - MarkMash1_s4_sequence
-    
+series: 
+   - 1
+   - 2
+   # - 3
+   # - 4
+
+## capture only single replicate for running deeptools
+deepRep:
+    - 1
+    #- 3
+
+cond:
+    #- WT
+    - FoxA2mut
+
+broad_peaks:
+    mark:
+        - H3K4me3
+        - H3K27me3
+        - H3K27ac
+        - H3K4me1
+     
+control_peaks:
+    mark:
+        - Input 
+   
+
+peak_files:
+    D5.5:
+   #    - /proj/uppstore2017048/Foxa2_ChIP/peakanno/D6_WT_Foxa2TF_filtered_annotated.bed
+   #    - /proj/uppstore2017048/Foxa2_ChIP/idrpeaks/peakanno/D5.5_WT_Foxa2TF_DE.bed
+   #    - /proj/uppstore2017048/Foxa2_ChIP/peakanno/ucsc_regions/D5.5_Foxa2TFbound_DE_ucsc_merged.bed
+        - /proj/uppstore2017048/P10161/01-Results/Genelists/markers/D5.5_FoxA2peaks_markers.bed
+    D3.5:
+    #   - /proj/uppstore2017048/Foxa2_ChIP/peakanno/D3.5_WT_Foxa2TF_filtered_annotated.bed
+    #   - /proj/uppstore2017048/Foxa2_ChIP/idrpeaks/peakanno/D3.5_WT_Foxa2TF_DE.bed
+    #    - /proj/uppstore2017048/Foxa2_ChIP/peakanno/ucsc_regions/D3.5_Foxa2TFbound_DE_ucsc_merged.bed
+        - /proj/uppstore2017048/P10161/01-Results/Genelists/markers/D3.5_FoxA2peaks_markers.bed
+
+UCSC_bed:
+    - "/proj/uppstore2017048/P10161/01-Results/Genelists/markers/markergenes_UCSC_TSS.bed"
+
+deeptools:
+    regionlabel:
+        - "DE-UCSC-TSS-"
+     #   - ""
+    refpoint:
+        - "peakcenter"
+        # - "TSS"
+    xname:
+        -  "gene distance (bp)"
+    kmeans_ncluster:
+        - "4"
+    filename:
+#        - "HM"
+          - "DE-UCSC-TSS_HM_RP"  
+     #     - "DE-UCSC-TSS_HM_SC"
+        #  - "DE-UCSC-TSS-Active_Enh_SC"  
+        # - "DE_HM_SC"
+    colors:
+        D3.5:
+            WT:
+                - yellow blue green red
+            FoxA2mut:
+                - green yellow blue red 
+        D5.5:
+            WT:
+                - red green yellow blue 
+            FoxA2mut:
+                - blue red green yellow 
+
+markers:
+    - "Shh"
+    - "Nkx2-2"
+    - "Nkx6-2"
+    - "Nkx2-9"
+    - "Gli1"
+    - "Gli2"
+    - "Gli3" 
+    - "Tgfb2"
+    - "Phox2b"
+    - "Foxa2"
+    - "Pax3"
+    - "Pax6"
+
+
+enhancers:  
+    D5.5:
+        - Gli2_peak1
+        - Gli2_peak2
+        - Gli3_peak1
+        - Gli3_peak2
+        - Gli3_peak3
+    #    - Nkx2-2_peak1
+    #    - Nkx2-2_peak2
+    #    - Foxa2_peak1
+    #    - Foxa2_peak2
+    #    - Shh_peak1
+    D3.5:
+        - Gli2_peak1
+        - Gli2_peak2
+       # - Gli1_peak1
+        - Gli3_peak1
+        - Gli3_peak2
+        - Gli3_peak3
+        - Gli3_peak4
+        - Gli3_peak5
+     #   - Nkx2-2_peak1
+     #   - Foxa2_peak1
+     #   - Shh_peak1
